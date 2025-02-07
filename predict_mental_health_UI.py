@@ -16,7 +16,6 @@ def load_model(model_path="mental_health_model.pkl"):
 
 model = load_model()
 
-# ✅ Mapping: Label Encoding
 age_mapping = {
     "18-22": 0, "23-26": 1, "27-30": 2, "Above 30": 3, "Below 18": 4
 }
@@ -44,24 +43,12 @@ depression_mapping = {
 }
 
 # 🔹 Function to Predict Mental Health Condition
-'''def predict_mental_health(symptom_inputs):
+def predict_mental_health(symptom_inputs):
     symptom_inputs = np.array(symptom_inputs).reshape(1, -1)
     prediction = model.predict(symptom_inputs)[0]
-    return depression_mapping.get(prediction)'''
+    return depression_mapping.get(prediction)
 
-def classify_depression(total_score):
-    if total_score <= 5:
-        return "No Depression"
-    elif total_score <= 15:
-        return "Minimal Depression"
-    elif total_score <= 25:
-        return "Mild Depression"
-    elif total_score <= 35:
-        return "Moderate Depression"
-    elif total_score <= 40:
-        return "Severe Depression"
-    else:
-        return "Very Severe Depression"
+
 
 # 🔹 Function to Generate LLM Explanation
 def generate_explanation(condition):
@@ -85,20 +72,19 @@ def generate_explanation(condition):
         "Suggest at least 3 immediate actions someone can take today to manage their condition effectively."
     )
 
-    # Tokenizing input
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids
 
-    # Generating text with better parameters
+    # Tuning the LLM model
     output_ids = llm_model.generate(
         input_ids,
-        max_length=2000,  # Increased length
-        min_length=700,   # Ensures sufficient depth
-        temperature=0.6,  # Balances creativity and coherence
+        max_length=2000,  
+        min_length=700,   
+        temperature=0.6,  
         do_sample=True,
-        top_p=0.98,  # Allows diverse yet relevant responses
-        repetition_penalty=1.2,  # Reduces repetitive phrases
+        top_p=0.98, 
+        repetition_penalty=1.2,  
         num_return_sequences=1,
-        no_repeat_ngram_size=3  # Avoids repeating phrases
+        no_repeat_ngram_size=3  
     )
 
     explanation = tokenizer.decode(output_ids[0], skip_special_tokens=True)
@@ -140,9 +126,8 @@ if st.button("Predict Mental Health Condition"):
     user_inputs = [age_val, gender_val, cgpa_val, scholarship_val] + symptoms
 
     # Predict condition
-    #result = predict_mental_health(user_inputs)
-    total_score = sum(symptoms)
-    result = classify_depression(total_score)
+    result = predict_mental_health(user_inputs)
+    
     st.success(f"**Predicted Mental Health Condition: {result}**")
 
     # Generate LLM explanation
